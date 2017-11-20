@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:weightSum="1">
+
+
+
+
+        <android.support.v7.widget.CardView
+            tools:targetApi="lollipop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginBottom="8dp"
+            android:clickable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            app:cardCornerRadius="4dp"
+            app:cardUseCompatPadding="true"
+            app:cardPreventCornerOverlap="false">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:text="I wish a goodnight and chicken dinners!"
+                    android:id="@+id/textView_yowall_message"
+                    android:layout_marginLeft="25dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginBottom="5dp"/>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@mipmap/my_bg_3"
+                    android:id="@+id/imageView_yowall"
+                    android:layout_marginLeft="25dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:text="9.15 北京"
+                    android:id="@+id/textView_location"
+                    android:alpha="0.7"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"/>
+
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src ="@mipmap/my_yo_36"
+                        android:id="@+id/imageView_my_yo"
+                        android:layout_marginLeft="30dp"
+                        android:layout_marginTop="13dp"
+                        android:layout_marginBottom="15dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:text="809"
+                        android:id="@+id/textView_my_yo"
+                        android:layout_marginLeft="7dp"
+                        android:layout_marginTop="18dp"
+                        android:layout_marginBottom="15dp"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src ="@mipmap/my_love_36"
+                        android:id="@+id/imageView_my_love"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="13dp"
+                        android:layout_marginBottom="15dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:text="228"
+                        android:id="@+id/textView_my_love"
+                        android:layout_marginLeft="7dp"
+                        android:layout_marginTop="18dp"
+                        android:layout_marginBottom="15dp"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src ="@mipmap/my_hoping_36"
+                        android:id="@+id/imageView_my_hoping"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="13dp"
+                        android:layout_marginBottom="15dp"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearanceSmall"
+                        android:text="171"
+                        android:id="@+id/textView_my_hoping"
+                        android:layout_marginLeft="7dp"
+                        android:layout_marginTop="18dp"
+                        android:layout_marginBottom="15dp"/>
+                </LinearLayout>
+
+                <!-- image、text等其他内容 -->
+
+            </LinearLayout>
+
+        </android.support.v7.widget.CardView>
+</LinearLayout>
+
+

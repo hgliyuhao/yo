@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="你的昵称是"
+        android:textSize="18dp"
+        android:textColor="#b3b3b3"
+        android:id="@+id/textView12"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="32dp"
+        android:layout_marginRight="16dp" />
+    <android.support.v7.widget.CardView
+        android:layout_width="275dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/card_view3"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_gravity="center_horizontal"
+        app:cardBackgroundColor="#ffffff"
+        app:cardCornerRadius="2dp"
+        app:cardElevation="1dp"
+        android:layout_marginBottom="16dp">
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:backgroundTint="#f5d7d7"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp">
+
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text=" 昵称"
+                android:textSize="20dp"
+                android:textColor="#8c8684"
+                android:id="@+id/textView4"
+                android:layout_margin="5dp" />
+
+            <EditText
+                android:layout_width="155dp"
+                android:layout_height="wrap_content"
+                android:inputType="none"
+                android:textColorHint="#d2d0cf"
+                android:background="@null"
+                android:ems="10"
+                android:id="@+id/name_editText"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_marginBottom="5dp" />
+
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+    <Button
+        android:layout_width="275dp"
+        android:layout_height="wrap_content"
+        android:text="确定"
+        android:id="@+id/button_gotosexc"
+        android:layout_marginTop="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_gravity="center_horizontal"
+        android:background="#a1dec7"/>
+
+</LinearLayout>
