@@ -69,7 +69,7 @@ import java.util.regex.Pattern;
 /**
  * Created by lenovo on 2017/5/27.
  */
-public class LoginActivity extends BaseActivity implements Fragment_signup.Callbacks,Fragment_login.login_Callbacks,Fragment_sethead.Callbacks,Fragment_name.login_Callbacks,Fragment_sexc.login_Callbacks{
+public class LoginActivity extends AppCompatActivity implements Fragment_signup.Callbacks,Fragment_login.login_Callbacks,Fragment_sethead.Callbacks,Fragment_name.login_Callbacks,Fragment_sexc.login_Callbacks{
 
     final float Yo_place = 0.39f;
     final float Denglu_place = 0.39f;
@@ -266,6 +266,8 @@ public class LoginActivity extends BaseActivity implements Fragment_signup.Callb
                                 public void run() {
                                     Intent i = new Intent(LoginActivity.this, MainActivity.class);
                                     i.putExtra("tel",userId);
+                                    i.putExtra("state","ok");
+                                    i.putExtra("headimage_uri", "");
                                     Num_send.setTel(userId);
                                     LoginActivity.this.startActivity(i);
                                     LoginActivity.this.finish();
@@ -733,6 +735,7 @@ public class LoginActivity extends BaseActivity implements Fragment_signup.Callb
         intent.putExtra("userName",string_userName);
         intent.putExtra("userSex",string_userSex);
         intent.putExtra("tel",string_userId);
+        intent.putExtra("state","login");
         Num_send.setTel(string_userId);
         startActivity(intent);
         finish();
@@ -1110,6 +1113,9 @@ public class LoginActivity extends BaseActivity implements Fragment_signup.Callb
             }
         }).start();
     }
+
+
+
     //登录
     private void LoginHx(final String name,final  String tel){
         EMClient.getInstance().login(string_userId, string_password, new EMCallBack() {
@@ -1142,6 +1148,7 @@ public class LoginActivity extends BaseActivity implements Fragment_signup.Callb
                         Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                         intent.putExtra("userName", name);
                         intent.putExtra("headimage_uri", "");
+                        intent.putExtra("state","quit");
                         intent.putExtra("tel", tel);
 
                         startActivity(intent);

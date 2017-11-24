@@ -77,15 +77,25 @@ public class SetActivity extends BaseActivity {
 
 
                 Intent intent = new Intent(SetActivity.this, LoginActivity.class);
-                intent.putExtra("quit","0");
+
+                //在此activity启动之前，任何与此activity相关联的task都会被清除。也就是说，
+                // 此activity将变成一个空栈中新的最底端的activity，所有的旧activity都会被finish掉，
+                // 这个标识仅仅和FLAG_ACTIVITY_NEW_TASK联合起来才能使用。
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra("quit", "0");
                 startActivity(intent);
                 finish();
+                //intent.putExtra("quit","0");
+                //startActivity(intent);
+                //finish();
 
 
 
             }
         });
     }
+
+
 
 
 }

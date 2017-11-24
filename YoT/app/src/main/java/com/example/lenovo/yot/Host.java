@@ -5,7 +5,8 @@ package com.example.lenovo.yot;
  */
 public class Host {
 
-    public static final String ip = "http://192.168.1.10/";
+   //public static final String ip = "http://192.168.1.10/";
+   public static final String ip = "http://47.93.184.173/";
 
     public static final String  Login = ip+"YoServer/login.php";
     public static final String  delete = ip+"YoServer/delete.php";

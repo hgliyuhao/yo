@@ -222,7 +222,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:id="@+id/textView_name"
-            android:text="Hglyh"
+            android:text=""
             android:textSize="16dp"
             android:textColor="#ffffff"
             android:layout_marginTop="10dp"

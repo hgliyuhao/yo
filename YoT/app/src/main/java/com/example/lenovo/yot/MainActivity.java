@@ -120,7 +120,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
     static String Color3 = "#a12525";
 
     //  ViewPage相关变量
-    private View view1, view2,view3;
+    private View view1, view2, view3;
     private ViewPager viewPager;
     private List<View> viewList;//view数组
 
@@ -147,7 +147,6 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
     private boolean isGetHeaderHeight;
     View view_refresh;
     int recycler_state;//0为隐藏刷新，1为正常
-
 
 
     //设置朋友下拉菜单
@@ -234,13 +233,14 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
     String tel;
 
     //获取请求队列示例
-    private RequestQueue queue = ((ECApplication)getApplication()).getRequestQueue();
+    private RequestQueue queue = ((ECApplication) getApplication()).getRequestQueue();
+
+    //动态权限常数
+    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
+    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 2;
 
 
-    private static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE= 1;
-    private static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE= 2;
-
-    ECApplication  application;
+    ECApplication application;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -249,7 +249,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WindowManager.LayoutParams localLayoutParams = getWindow().getAttributes();
             localLayoutParams.flags = (WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS | localLayoutParams.flags);
-            if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP){
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                 //将侧边栏顶部延伸至status bar
                 mDrawerLayout.setFitsSystemWindows(true);
                 //将主页面顶部延伸至status bar;虽默认为false,但经测试,DrawerLayout需显示设置
@@ -260,6 +260,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
         setContentView(R.layout.main);
 
 
+        //开启消息监听server
         Intent i = new Intent(this, PushService.class);
         startService(i);
 
@@ -277,12 +278,29 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
         //viewPager处理
         viewpager();
         //设置RecyclerView
+
+        Intent intent1;
+        intent1 = getIntent();
+
+        if((intent1.getStringExtra("state")).equals("quit")){
+            //如果状态是quit把数据全部置0
+            editor_name.putString("name", "");
+            editor_name.commit();
+
+            editor_head.putString("head", "");
+            editor_head.commit();
+
+            editor_times.putInt("times", 0);
+            editor_times.commit();
+
+        }
+
         setToolbar();
         setDrawLayout();
 
         setFloatingButton();
 
-
+        //得到回调
 
     }
 
@@ -299,10 +317,10 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
                     //获得头像数据
                     //数据处理
                     //List_send(int position, int idResource, String id,  String time,double distance, int relationship)
-                    List_send list1 = new List_send(1,R.mipmap.tx_xiao2_150,"admin","3",1,2);
+                    List_send list1 = new List_send(1, R.mipmap.tx_xiao2_150, "admin", "3", 1, 2);
                     String id = message.getFrom().toString().trim();
                     long time = message.getMsgTime();
-                    Log.e("yo",time+""+Time.timeAgo(time));
+                    Log.e("yo", time + "" + Time.timeAgo(time));
                     //List_send list_new = new  List_send(0,R.mipmap.tx_xiao2_150,message.getFrom().toString().trim(),"","1",1,10,1);
                     //textView_id.setText("\n" + message.getFrom().toString().trim()+message.getMsgTime());
                     //要通过tel去取对应的id
@@ -310,7 +328,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
                     message.getStringAttribute("location", application.Location_short);
                     message.getStringAttribute("Latitude", application.Location_Latitude + "");
-                    message.getStringAttribute("Longitude", application.Location_Longitude+"");
+                    message.getStringAttribute("Longitude", application.Location_Longitude + "");
                     //计算位置得到结果给distance
                     //sendNotification();
                     addtoSendrecycler(list1);
@@ -336,36 +354,36 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
 
     //找到控件
-    private void findview(){
+    private void findview() {
 
-        toolbar = (Toolbar)findViewById(R.id.toolbar);
-        linearLayout_title =(LinearLayout)findViewById(R.id.linearlayout_title);
-        linearLayout_set =(LinearLayout)findViewById(R.id.linearlayout_set);
-        textView_yo = (TextView)findViewById(R.id.textView_yo);
-        textView_fri = (TextView)findViewById(R.id.textView_fri);
-        textView_yowall = (TextView)findViewById(R.id.textView_wall);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        linearLayout_title = (LinearLayout) findViewById(R.id.linearlayout_title);
+        linearLayout_set = (LinearLayout) findViewById(R.id.linearlayout_set);
+        textView_yo = (TextView) findViewById(R.id.textView_yo);
+        textView_fri = (TextView) findViewById(R.id.textView_fri);
+        textView_yowall = (TextView) findViewById(R.id.textView_wall);
         viewPager = (ViewPager) findViewById(R.id.viewpager);
-        floatingActionButton_yo = (FloatingActionButton)findViewById(R.id.floatingActionButton_yo);
-        floatingActionButton_message = (FloatingActionButton)findViewById(R.id.floatingActionButton_message);
-        floatingActionButton_wall = (FloatingActionButton)findViewById(R.id.floatingActionButton_wall);
-        mDrawerLayout =(DrawerLayout)findViewById(R.id.dl_left);
-        imageView_set = (ImageView)findViewById(R.id.imageView_set);
-        linearLayout_left = (LinearLayout)findViewById(R.id.linearlayout_left);
-        textView_DrawLayoutname = (TextView)findViewById(R.id.textView_name);
-        textView_DrawLayoutsetname = (TextView)findViewById(R.id.textView_setname);
-        imageView_DrawLayouthead =(ImageView)findViewById(R.id.imageView_set_head);
+        floatingActionButton_yo = (FloatingActionButton) findViewById(R.id.floatingActionButton_yo);
+        floatingActionButton_message = (FloatingActionButton) findViewById(R.id.floatingActionButton_message);
+        floatingActionButton_wall = (FloatingActionButton) findViewById(R.id.floatingActionButton_wall);
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.dl_left);
+        imageView_set = (ImageView) findViewById(R.id.imageView_set);
+        linearLayout_left = (LinearLayout) findViewById(R.id.linearlayout_left);
+        textView_DrawLayoutname = (TextView) findViewById(R.id.textView_name);
+        textView_DrawLayoutsetname = (TextView) findViewById(R.id.textView_setname);
+        imageView_DrawLayouthead = (ImageView) findViewById(R.id.imageView_set_head);
 
     }
 
     //viewPager处理
-    private void viewpager(){
+    private void viewpager() {
 
 
         setPopupwindow();
-        LayoutInflater inflater=getLayoutInflater();
+        LayoutInflater inflater = getLayoutInflater();
         view1 = inflater.inflate(R.layout.viewpage_yo, null);
-        view2 = inflater.inflate(R.layout.viewpage_friend,null);
-        view3 =  inflater.inflate(R.layout.viewpage_will,null);
+        view2 = inflater.inflate(R.layout.viewpage_friend, null);
+        view3 = inflater.inflate(R.layout.viewpage_will, null);
         viewList = new ArrayList<View>();// 将要分页显示的View装入数组中
         viewList.add(view1);
         viewList.add(view2);
@@ -400,17 +418,16 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
             }
         };
         viewPager.setAdapter(pagerAdapter);
-        swipeRefreshLayout = (SwipeRefreshLayout)view1.findViewById(R.id.swiperefreshlayout);
-        mRecyclerView = (RecyclerView)view1.findViewById(R.id.recyclerView1);
-        mRecyclerView_friend = (RecyclerView)view2.findViewById(R.id.recyclerView2);
-        mRecyclerView_yo = (RecyclerView)view3.findViewById(R.id.recyclerView3);
+        swipeRefreshLayout = (SwipeRefreshLayout) view1.findViewById(R.id.swiperefreshlayout);
+        mRecyclerView = (RecyclerView) view1.findViewById(R.id.recyclerView1);
+        mRecyclerView_friend = (RecyclerView) view2.findViewById(R.id.recyclerView2);
+        mRecyclerView_yo = (RecyclerView) view3.findViewById(R.id.recyclerView3);
         setmRecyclerView();
         setmRecyclerView_yo();
         setmRecyclerView_friend();
         setRefresh();
 
         //上拉刷新
-
 
 
         /**
@@ -453,29 +470,27 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
     }
 
     //viewPager滑动改变toolbar背景颜色
-    private void setToolbarColour(int postion){
+    private void setToolbarColour(int postion) {
 
-        if ( postion == 1){
+        if (postion == 1) {
             toolbar.setBackgroundColor(Color.parseColor(Color2));
             linearLayout_title.setBackgroundColor(Color.parseColor(Color2));
             linearLayout_title.setAlpha(0.8f);
             linearLayout_set.setBackgroundColor(Color.parseColor(Color2));
 
-           // mD_RecyclerView.setBackgroundResource(postion);
-            if(lastpostion == 0){
+            // mD_RecyclerView.setBackgroundResource(postion);
+            if (lastpostion == 0) {
 
-                if(isShow_floating_yo){
+                if (isShow_floating_yo) {
                     rotate(floatingActionButton_message);
                     floatingActionButton_message.setVisibility(View.VISIBLE);
                     floatingActionButton_yo.setVisibility(View.INVISIBLE);
                     floatingActionButton_wall.setVisibility(View.INVISIBLE);
-                }
-                else{
+                } else {
                     floatingActionButton_message.setVisibility(View.VISIBLE);
                     show(floatingActionButton_message);
                 }
-            }
-            else if(lastpostion == 2 ){
+            } else if (lastpostion == 2) {
 
                 rotate(floatingActionButton_message);
                 floatingActionButton_message.setVisibility(View.VISIBLE);
@@ -484,8 +499,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
             }
 
             lastpostion = 1;
-        }
-        else if(postion == 0){
+        } else if (postion == 0) {
 
             toolbar.setBackgroundColor(Color.parseColor(Color1));
             linearLayout_title.setBackgroundColor(Color.parseColor(Color1));
@@ -494,26 +508,22 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
             //linearLayout_left.setBackgroundColor(Color.parseColor(Color1));
 
             floatingActionButton_wall.setVisibility(View.INVISIBLE);
-            if(isShow_floating_yo){
+            if (isShow_floating_yo) {
                 rotate(floatingActionButton_yo);
                 floatingActionButton_message.setVisibility(View.INVISIBLE);
                 floatingActionButton_yo.setVisibility(View.VISIBLE);
-            }
-            else{
-               hide(floatingActionButton_message);
-                if(isFirst){
+            } else {
+                hide(floatingActionButton_message);
+                if (isFirst) {
 
-                }
-                else {
+                } else {
                     floatingActionButton_yo.setVisibility(View.VISIBLE);
                 }
 
 
-
             }
             lastpostion = 0;
-        }
-        else{
+        } else {
 
             toolbar.setBackgroundColor(Color.parseColor(Color3));
             linearLayout_title.setBackgroundColor(Color.parseColor(Color3));
@@ -531,29 +541,26 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
     }
 
     //viewPager滑动改变textView字体颜色
-    private void setTitleColour(int position,float positionOffset){
+    private void setTitleColour(int position, float positionOffset) {
         int lastpostion;
         lastpostion = 0;
-        if(position == 1){
-            if(lastpostion ==2){
+        if (position == 1) {
+            if (lastpostion == 2) {
                 textView_yo.setAlpha(positionOffset * 0.6f + 0.4f);
                 textView_fri.setAlpha(1 - positionOffset * 0.6f);
                 textView_yowall.setAlpha(0.4f);
-            }
-            else{
+            } else {
                 textView_yo.setAlpha(0.4f);
                 textView_fri.setAlpha(1 - positionOffset * 0.6f);
                 textView_yowall.setAlpha(positionOffset * 0.6f + 0.4f);
             }
 
-        }
-        else if(position ==0 ){
+        } else if (position == 0) {
             textView_yo.setAlpha(1 - positionOffset * 0.6f);
             textView_fri.setAlpha(positionOffset * 0.6f + 0.4f);
             textView_yowall.setAlpha(0.4f);
             lastpostion = 0;
-        }
-        else{
+        } else {
             textView_yowall.setAlpha(1 - positionOffset * 0.6f);
             textView_fri.setAlpha(positionOffset * 0.6f + 0.4f);
             textView_yo.setAlpha(0.4f);
@@ -566,7 +573,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
     //将viewPager的状态传给DRcyclerview
 
     //设置recyclerView
-    private void setmRecyclerView(){
+    private void setmRecyclerView() {
 
         RecyclerView.LayoutManager mLayoutManager;
         //mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView1);
@@ -575,23 +582,20 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         // mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(4,        StaggeredGridLayoutManager.VERTICAL));
-        mAdapter =  new RecyclerViewAdapter(this,datas);
+        mAdapter = new RecyclerViewAdapter(this, datas);
         mRecyclerView.setAdapter(mAdapter);
 
         //隐藏刷新栏
 
-         //mRecyclerView.scrollToPosition(1);
-        ((LinearLayoutManager)mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(1,0);
+        //mRecyclerView.scrollToPosition(1);
+        ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(1, 0);
         //mRecyclerView.scrollBy(0, -180);
-
-
 
 
         //滑动监测
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
             private static final int SCROLL_DISTANCE = 50;
-
 
 
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -606,29 +610,24 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
-                totalScrollDistance = totalScrollDistance+dy;
+                totalScrollDistance = totalScrollDistance + dy;
 
-               // Log.e("yo",recycler_firstVisableItem+"");
+                // Log.e("yo",recycler_firstVisableItem+"");
 
                 // -1 表示不能向上
 
 
+                if (totalScrollDistance < 0 && totalScrollDistance > -170) {
 
 
-
-
-                if(totalScrollDistance<0&&totalScrollDistance>-170){
-
-
-                    Handler handler= new Handler();
+                    Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
 
-                            if(isRefresing){
+                            if (isRefresing) {
 
-                            }
-                            else{
+                            } else {
                                 mRecyclerView.scrollBy(0, -totalScrollDistance);
                                 //隐藏刷新栏
                                 mAdapter.setTextView_refresh();
@@ -636,27 +635,23 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
 
                         }
-                    },500);
-
+                    }, 500);
 
 
                 }
-
-
 
 
                 int recycler_firstVisableItem = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
 
-                if(recycler_firstVisableItem==0){
+                if (recycler_firstVisableItem == 0) {
                     //当第一个item存在界面上时就不触发隐藏、显示操作
-                    if(isShow_floating_yo){
+                    if (isShow_floating_yo) {
                         isShow_floating_yo = false;
                         hide(floatingActionButton_yo);
                     }
-                }
-                else if(totalScrollDistance>SCROLL_DISTANCE){
+                } else if (totalScrollDistance > SCROLL_DISTANCE) {
 
-                    if(isFirst){
+                    if (isFirst) {
                         floatingActionButton_yo.setVisibility(View.VISIBLE);
                         isFirst = false;
                     }
@@ -669,15 +664,14 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
                 getSize();
 
-               if(recycler_state==0){
+                if (recycler_state == 0) {
 
                     view_refresh = (mRecyclerView.getLayoutManager()).getChildAt(0);
-                    ViewGroup.LayoutParams params=view_refresh.getLayoutParams();
-                    params.height=1;
+                    ViewGroup.LayoutParams params = view_refresh.getLayoutParams();
+                    params.height = 1;
                     view_refresh.setLayoutParams(params);
 
-                }
-                else{
+                } else {
                     //((LinearLayoutManager)mRecyclerView.getLayoutManager()).getChildAt(0).setVisibility(View.VISIBLE);
                     //((LinearLayoutManager)mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(1,0);
                 }
@@ -700,16 +694,15 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
                     Date date = new Date(Time.timeNow());
                     String time = Time.dateNow(date);
-                  //  String pass =Time.timeAgo(date);
+                    //  String pass =Time.timeAgo(date);
                     //SendYo("13331578811");
-                    Log.e("yo", "time=" + time + "pass=" );
+                    Log.e("yo", "time=" + time + "pass=");
                     SendYo("13331570000");
 
-                }
-                else if(position == 2){
+                } else if (position == 2) {
 
                     sendNotification();
-                    List_send list1 = new List_send(1,R.mipmap.tx_xiao2_150,"S.s","3",1,2);
+                    List_send list1 = new List_send(1, R.mipmap.tx_xiao2_150, "S.s", "3", 1, 2);
                     mRecyclerView.scrollToPosition(1);
                     datas.add(1, list1);
                     mAdapter.notifyItemInserted(1);
@@ -722,10 +715,9 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
         });
 
 
-
     }
 
-    public void ToIsee(String UserId){
+    public void ToIsee(String UserId) {
 
         Intent intent = new Intent(MainActivity.this, MyActivity.class);
         intent.putExtra("UserId", UserId);
@@ -733,8 +725,8 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
     }
 
 
-    //recycler下拉刷新
-    private void setRefresh(){
+    //下面三个方法都是用来recycler下拉刷新
+    private void setRefresh() {
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -768,34 +760,33 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
             }
         });
     }
-    public void set0(){
+
+    public void set0() {
 
 
+        if (!isGetHeaderHeight) {
 
-         if(!isGetHeaderHeight){
-
-            mRecyclerView.scrollBy(0,90);
+            mRecyclerView.scrollBy(0, 90);
             isRefresing = false;
             /*ViewGroup.LayoutParams params=view_refresh.getLayoutParams();
             params.height=1;
             view_refresh.setLayoutParams(params);
             isRefresing = false;*/
-             if(recycler_state==0){
-                 ViewGroup.LayoutParams params=view_refresh.getLayoutParams();
-                 params.height=1;
-                 view_refresh.setLayoutParams(params);
-             }
+            if (recycler_state == 0) {
+                ViewGroup.LayoutParams params = view_refresh.getLayoutParams();
+                params.height = 1;
+                view_refresh.setLayoutParams(params);
+            }
 
 
-        }
-        else{
-            mRecyclerView.scrollBy(0,90);
+        } else {
+            mRecyclerView.scrollBy(0, 90);
             isRefresing = false;
-             if(recycler_state==0){
-                 ViewGroup.LayoutParams params=view_refresh.getLayoutParams();
-                 params.height=1;
-                 view_refresh.setLayoutParams(params);
-             }
+            if (recycler_state == 0) {
+                ViewGroup.LayoutParams params = view_refresh.getLayoutParams();
+                params.height = 1;
+                view_refresh.setLayoutParams(params);
+            }
             /*ViewGroup.LayoutParams params=view_refresh.getLayoutParams();
             params.height=1;
             view_refresh.setLayoutParams(params);
@@ -805,22 +796,22 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
 
     }
-    private void getSize(){
 
-        int itemHeight,size;
+    private void getSize() {
+
+        int itemHeight, size;
         itemHeight = mRecyclerView.getLayoutManager().getChildAt(1).getHeight();
-        size = ((displayHeight-linearLayout_title.getBottom())-(displayHeight-linearLayout_title.getBottom())%itemHeight)/itemHeight;
-        if(datas.size()<size+1){
+        size = ((displayHeight - linearLayout_title.getBottom()) - (displayHeight - linearLayout_title.getBottom()) % itemHeight) / itemHeight;
+        if (datas.size() < size + 1) {
             recycler_state = 0;
-        }
-        else {
+        } else {
             recycler_state = 1;
         }
 
     }
 
     //设置recyclerView
-    private void setmRecyclerView_friend(){
+    private void setmRecyclerView_friend() {
 
 
         //mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView1);
@@ -829,7 +820,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
         mRecyclerView_friend.setHasFixedSize(true);
         mRecyclerView_friend.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         // mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(4,        StaggeredGridLayoutManager.VERTICAL));
-        mAdapter_friend =  new ToFriendActivity(this,friend_datas);
+        mAdapter_friend = new ToFriendActivity(this, friend_datas);
         mRecyclerView_friend.setAdapter(mAdapter_friend);
 
 
@@ -837,7 +828,6 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
         mRecyclerView_friend.addOnScrollListener(new RecyclerView.OnScrollListener() {
 
             private static final int SCROLL_DISTANCE = 50;
-
 
 
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -852,17 +842,12 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
 
-                friendtotalMove = friendtotalMove+dy;
+                friendtotalMove = friendtotalMove + dy;
 
                 Log.e("yo", friendtotalMove + "");
 
 
-
-
-
                 int firstVisableItem = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
-
-
 
 
             }
@@ -885,21 +870,17 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
 
                     //SendYo("13331578811");
-                }
-                else{
+                } else {
                     //showPopupwindow(position);
                 }
             }
         });
 
 
-
-
-
     }
 
     //设置recyclerView
-    private void setmRecyclerView_yo(){
+    private void setmRecyclerView_yo() {
 
         getYowallDate(Num_send.getTel());
         //mRecyclerView = (RecyclerView) findViewById(R.id.recyclerView1);
@@ -907,8 +888,8 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
         mRecyclerView_yo.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView_yo.setHasFixedSize(true);
         mRecyclerView_yo.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-       // mRecyclerView_yo.setLayoutManager(new StaggeredGridLayoutManager(2,        StaggeredGridLayoutManager.VERTICAL));
-        mAdapter_yo =  new YowallAdapter(this,yowall_datas);
+        // mRecyclerView_yo.setLayoutManager(new StaggeredGridLayoutManager(2,        StaggeredGridLayoutManager.VERTICAL));
+        mAdapter_yo = new YowallAdapter(this, yowall_datas);
         mRecyclerView_yo.setAdapter(mAdapter_yo);
 
         //滑动监测
@@ -933,10 +914,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
                 int firstVisableItem = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
 
 
-
             }
-
-
 
 
         });
@@ -955,7 +933,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
                 }
             }
         });
-        
+
 
     }
 
@@ -965,35 +943,35 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
         int ea = event.getAction();
 
-            switch (ea) {
-                case MotionEvent.ACTION_DOWN:
-                    lastX = (int) event.getRawX();// 获取触摸事件触摸位置的原始X坐标
-                    lastY = (int) event.getRawY();
-                    lastTime = System.currentTimeMillis();
+        switch (ea) {
+            case MotionEvent.ACTION_DOWN:
+                lastX = (int) event.getRawX();// 获取触摸事件触摸位置的原始X坐标
+                lastY = (int) event.getRawY();
+                lastTime = System.currentTimeMillis();
 
 
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    // x轴方向的位移差
-                    int dx = (int) event.getRawX() - lastX;
-                    // y轴方向的位移差
-                    int dy = (int) event.getRawY() - lastY;
+                break;
+            case MotionEvent.ACTION_MOVE:
+                // x轴方向的位移差
+                int dx = (int) event.getRawX() - lastX;
+                // y轴方向的位移差
+                int dy = (int) event.getRawY() - lastY;
 
-                    long dtime = System.currentTimeMillis() - lastTime;
-                    Log.e("yo", "" + dtime);
-
-
-                    break;
-                case MotionEvent.ACTION_UP:
-
-                    break;
-                default:
-
-                    break;
-            }
+                long dtime = System.currentTimeMillis() - lastTime;
+                Log.e("yo", "" + dtime);
 
 
-            return true;
+                break;
+            case MotionEvent.ACTION_UP:
+
+                break;
+            default:
+
+                break;
+        }
+
+
+        return true;
 
 
     }
@@ -1014,62 +992,58 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
         isShow_floating_message = false;
 
 
-        Times= getSharedPreferences("times", MODE_PRIVATE);
+        Times = getSharedPreferences("times", MODE_PRIVATE);
         editor_times = Times.edit();
         times = Times.getInt("times", 0);
         editor_times.apply();
 
-        Head= getSharedPreferences("head", MODE_PRIVATE);
+        Head = getSharedPreferences("head", MODE_PRIVATE);
         editor_head = Head.edit();
         head = Head.getString("head", "");
         editor_head.apply();
 
-        Name= getSharedPreferences("name", MODE_PRIVATE);
+        Name = getSharedPreferences("name", MODE_PRIVATE);
         editor_name = Name.edit();
         name = Name.getString("name", "");
         editor_name.apply();
 
-        Tel= getSharedPreferences("tel", MODE_PRIVATE);
+        Tel = getSharedPreferences("tel", MODE_PRIVATE);
         editor_tel = Tel.edit();
         tel = Tel.getString("tel", "");
         editor_tel.apply();
 
 
-
         application = (ECApplication) getApplication();
         datas = new ArrayList<>();
-        final List_send list1 = new List_send(1,R.mipmap.tx_xiao2_150,"S.s","3",1,2);
-        List_send list2 = new List_send(2,R.mipmap.tx_thirty,application.Location_short,"55",1,4);
+        final List_send list1 = new List_send(1, R.mipmap.tx_xiao2_150, "S.s", "3", 1, 2);
+        List_send list2 = new List_send(2, R.mipmap.tx_thirty, application.Location_short, "55", 1, 4);
         datas.add(list1);
         datas.add(list2);
         datas.add(list1);
 
-        for(int i =0;i<3;i++){
-          datas.add(list1);
+        for (int i = 0; i < 3; i++) {
+            datas.add(list1);
         }
 
 
         conversationList.addAll(loadConversationWithRecentChat());
 
         List_send list_new;
-        if(loadConversationWithRecentChat().size()>0){
+        if (loadConversationWithRecentChat().size() > 0) {
             int k;
-            for(k =0;k<loadConversationWithRecentChat().size();k++)
-            {
+            for (k = 0; k < loadConversationWithRecentChat().size(); k++) {
                 //显示最后一条来自别人的信息
-                if(conversationList.get(k).getLatestMessageFromOthers()!=null){
+                if (conversationList.get(k).getLatestMessageFromOthers() != null) {
 
-                    list_new =new List_send(2,R.mipmap.dang,conversationList.get(k).getLatestMessageFromOthers().getFrom(),"9.15",14.8,1);
+                    list_new = new List_send(2, R.mipmap.dang, conversationList.get(k).getLatestMessageFromOthers().getFrom(), "9.15", 14.8, 1);
                     datas.add(list_new);
-                }
-                else{
+                } else {
                     //询问服务器他的信息
                     //list_new =new List_send(2,R.mipmap.dang,conversationList.get(k).getLatestMessageFromOthers().getFrom(),"9.15",14.8,1);
                 }
                 //datas.add(list_new);
             }
-        }
-        else{
+        } else {
 
         }
 
@@ -1079,26 +1053,24 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
         }*/
 
         friend_datas = new ArrayList<>();
-        final List_friend list_friend1 = new List_friend(1,R.mipmap.tx_xiao2_150,"S.s","3",1,2);
-        List_friend list_friend2 = new List_friend(2,R.mipmap.tx_thirty,"thirty","55",1,4);
+        final List_friend list_friend1 = new List_friend(1, R.mipmap.tx_xiao2_150, "S.s", "3", 1, 2);
+        List_friend list_friend2 = new List_friend(2, R.mipmap.tx_thirty, "thirty", "55", 1, 4);
         friend_datas.add(list_friend1);
         friend_datas.add(list_friend1);
         friend_datas.add(list_friend1);
 
-        for(int i =0;i<20;i++){
+        for (int i = 0; i < 20; i++) {
             friend_datas.add(list_friend2);
         }
 
 
-
         data = new ArrayList<>();
-        final List_set listSet1 =new List_set(1,R.mipmap.my,"我的空间");
-        final List_set listSet2 =new List_set(1,R.mipmap.set5,"设置");
-        final List_set listSet3 =new List_set(1,R.mipmap.about,"关于Yo！");
+        final List_set listSet1 = new List_set(1, R.mipmap.my, "我的空间");
+        final List_set listSet2 = new List_set(1, R.mipmap.set5, "设置");
+        final List_set listSet3 = new List_set(1, R.mipmap.about, "关于Yo！");
         data.add(listSet1);
         data.add(listSet2);
         data.add(listSet3);
-
 
 
         yowall_datas = new ArrayList<>();
@@ -1112,64 +1084,14 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
         isGetHeaderHeight = false;
         HeaderHeight = 0;
-        isRefresing =false;
-
+        isRefresing = false;
 
 
     }
 
-    //从服务器的得到墙列表
-    private  void getYowallDate2(){
 
-        JsonObjectRequest jsonObjReq = new JsonObjectRequest(Request.Method.GET,
-                Host.getYowallDate, null,
-                new Response.Listener<JSONObject>() {
-                    //在这个方法里，成功获取到了数据
-                    @Override
-                    public void onResponse(JSONObject response) {
-
-
-                        try{
-                            JSONArray mJSONArray= response.getJSONArray("userList");
-                            for(int i =  0 ; i < mJSONArray.length(); i++)
-                            {
-
-
-                                JSONObject jsonItem = mJSONArray.getJSONObject(i);
-                                int id = jsonItem.getInt("id");
-                                String tel = jsonItem.getString("tel");
-                                String photo_name = jsonItem.getString("photo_name");
-                                String messages = jsonItem.getString("messages");
-                                String time =jsonItem.getString("time");
-                                String location = jsonItem.getString("location");
-
-
-                                List_yowall yowall_listSet1 =new List_yowall(id,photo_name,messages,tel,time,2.9,location,false,false,false,12,12,12);
-                               // List_yowall yowall_listSet1 =new List_yowall(id,"no","123",tel,time,2.9,location,false,false,false,12,12,12);
-                                addyowalldate(yowall_listSet1);
-                                //yowall_datas.add(yowall_listSet1);
-                            }
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                }, new Response.ErrorListener() {
-            //在这个方法里，打印错误信息
-            @Override
-            public void onErrorResponse(VolleyError error) {
-
-
-            }
-        });
-
-        queue.add(jsonObjReq);
-
-    }
-
-
-    private  void getYowallDate(final String getTel){
+    //从服务器得到yo墙数据
+    private void getYowallDate(final String getTel) {
 
 
         StringRequest stringRequest1 = new StringRequest(Request.Method.POST, Host.getYowallDate,
@@ -1179,9 +1101,8 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
                         try {
                             JSONObject jsonObject = new JSONObject(response);
 
-                            JSONArray mJSONArray=jsonObject.getJSONArray("userList");
-                            for(int i =  0 ; i < mJSONArray.length(); i++)
-                            {
+                            JSONArray mJSONArray = jsonObject.getJSONArray("userList");
+                            for (int i = 0; i < mJSONArray.length(); i++) {
 
 
                                 JSONObject jsonItem = mJSONArray.getJSONObject(i);
@@ -1189,7 +1110,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
                                 String tel = jsonItem.getString("tel");
                                 String photo_name = jsonItem.getString("photo_name");
                                 String messages = jsonItem.getString("messages");
-                                String time =jsonItem.getString("time");
+                                String time = jsonItem.getString("time");
                                 String location = jsonItem.getString("location");
                                 Boolean isYo = jsonItem.getBoolean("isYo");
                                 Boolean isLove = jsonItem.getBoolean("isLove");
@@ -1197,8 +1118,8 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
                                 int num_yo = jsonItem.getInt("num_yo");
                                 int num_love = jsonItem.getInt("num_love");
                                 int num_want = jsonItem.getInt("num_want");
-                                                            //这才是对应关系int position, String photo,String message, String id,  String time,double distance, String location,boolean isYo,boolean isLove,boolean isHoping,int yo,int love,int hoping
-                                List_yowall yowall_listSet1 =new List_yowall(id,photo_name,messages,tel,time,2.9,location,isYo,isLove,isWant,num_yo,num_love,num_want);
+                                //这才是对应关系int position, String photo,String message, String id,  String time,double distance, String location,boolean isYo,boolean isLove,boolean isHoping,int yo,int love,int hoping
+                                List_yowall yowall_listSet1 = new List_yowall(id, photo_name, messages, tel, time, 2.9, location, isYo, isLove, isWant, num_yo, num_love, num_want);
                                 // List_yowall yowall_listSet1 =new List_yowall(id,"no","123",tel,time,2.9,location,false,false,false,12,12,12);
                                 addyowalldate(yowall_listSet1);
                                 //yowall_datas.add(yowall_listSet1);
@@ -1214,12 +1135,11 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
             public void onErrorResponse(VolleyError error) {
                 Log.e("TAG", error.getMessage(), error);
             }
-        })
-        {
+        }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> map = new HashMap<String, String>();
-                map.put("tel",getTel);
+                map.put("tel", getTel);
                 return map;
             }
         };
@@ -1229,24 +1149,26 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
     }
 
-    private void addyowalldate(List_yowall list_yowall){
+
+    //更新recycler数据，并置顶
+    private void addyowalldate(List_yowall list_yowall) {
 
 
         mRecyclerView_yo.scrollToPosition(0);
-        yowall_datas.add(0,list_yowall);
+        yowall_datas.add(0, list_yowall);
         mAdapter_yo.notifyItemInserted(0);
-        mAdapter_yo.notifyItemRangeChanged(0,  yowall_datas.size() - 0);
+        mAdapter_yo.notifyItemRangeChanged(0, yowall_datas.size() - 0);
 
     }
 
 
-    private  void getYowallDate(){
+    private void getYowallDate() {
 
-        JsonArrayRequest jsonArrayRequest =new JsonArrayRequest(Host.getYowallDate,new Response.Listener<JSONArray>(){
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Host.getYowallDate, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
 
-                Log.e("yo",123123+"");
+                Log.e("yo", 123123 + "");
             }
         }, new Response.ErrorListener() {
             @Override
@@ -1260,14 +1182,14 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
     }
 
     //设置floatingbutton
-    private void setFloatingButton(){
+    private void setFloatingButton() {
 
         floatingActionButton_yo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 mRecyclerView.scrollBy(0, -totalScrollDistance);
-                if(isShow_floating_yo){
+                if (isShow_floating_yo) {
                     isShow_floating_yo = false;
                     hide(floatingActionButton_yo);
                 }
@@ -1278,7 +1200,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
             @Override
             public void onClick(View v) {
 
-                Intent i = new Intent(MainActivity.this,AddFriendActivity.class);
+                Intent i = new Intent(MainActivity.this, AddFriendActivity.class);
                 startActivity(i);
 
             }
@@ -1287,7 +1209,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
             @Override
             public void onClick(View v) {
 
-                Intent i = new Intent(MainActivity.this,YowallActivity.class);
+                Intent i = new Intent(MainActivity.this, YowallActivity.class);
                 startActivity(i);
 
             }
@@ -1321,11 +1243,12 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
         mAnimator.setTarget(view);
         mAnimator.start();
     }
-    private void hide(final View view){
+
+    private void hide(final View view) {
 
         //得到控件与屏幕底部的距离
         int Height;
-        Height = displayWidth-view.getTop();
+        Height = displayWidth - view.getTop();
 
         ValueAnimator mAnimator = ValueAnimator.ofInt(0, Height);
         mAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
@@ -1372,20 +1295,18 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
         });
 
     }
-    private void rotate(final View view){
+
+    private void rotate(final View view) {
         float k;
-        if(view ==floatingActionButton_message){
-            if(isShow_floating_yo){
+        if (view == floatingActionButton_message) {
+            if (isShow_floating_yo) {
                 k = 90f;
-            }
-           else{
+            } else {
                 k = -90f;
             }
-        }
-        else if(view ==floatingActionButton_wall){
+        } else if (view == floatingActionButton_wall) {
             k = 90f;
-        }
-        else{
+        } else {
             k = -90f;
         }
         ValueAnimator mAnimator = ValueAnimator.ofFloat(k, 0);
@@ -1408,11 +1329,9 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
     //Yo出现动画
 
 
-
-
     //设置toolbar的控件
     //导航栏，搜索键
-    private void setToolbar(){
+    private void setToolbar() {
 
         imageView_set.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1429,22 +1348,22 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
     }
 
     //设置DrawLayout
-    private void setDrawLayout(){
+    private void setDrawLayout() {
 
-
-        Intent intent1 ;
-        intent1 =getIntent();
-
-        if(times==0){
-
-            if((intent1.getStringExtra("headimage_uri")).equals("") ){
-
-                gethead(imageView_DrawLayouthead,intent1.getStringExtra("tel"));
+        //得到数据
+        Intent intent1;
+        intent1 = getIntent();
 
 
 
-            }
-            else{
+        if (times == 0) {
+
+            if ((intent1.getStringExtra("headimage_uri")).equals("")) {
+
+                gethead(imageView_DrawLayouthead, intent1.getStringExtra("tel"));
+
+
+            } else {
                 Uri imageUri = Uri.parse(intent1.getStringExtra("headimage_uri"));
                 imageView_DrawLayouthead.setImageBitmap(getBitmapFromUri(imageUri));
 
@@ -1466,15 +1385,14 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
             setSharedPreferences(intent1.getStringExtra("headimage_uri"));
 
 
-        }
-        else{
-        //不是第一次访问先读取本地数据，如果没有再去获取网络数据，减少主线程负担
+        } else {
+            //不是第一次访问先读取本地数据，如果没有再去获取网络数据，减少主线程负担
 
-            if(head.equals("") ){
+            if (head.equals("")) {
 
                 gethead(imageView_DrawLayouthead, tel);
-            }
-            else{
+
+            } else {
 
                 Uri imageUri = Uri.parse(head);
                 imageView_DrawLayouthead.setImageBitmap(getBitmapFromUri(imageUri));
@@ -1482,16 +1400,13 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
             }
 
 
-            if(name.equals("")){
+            if (name.equals("")) {
                 getusername(tel);
                 editor_name.putString("name", intent1.getStringExtra("userName"));
                 editor_name.commit();
-            }
-
-            else {
+            } else {
                 textView_DrawLayoutname.setText(name);
             }
-
 
 
         }
@@ -1512,7 +1427,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
     }
 
     //DrawLayout内的recyclerview
-    private void setDrawLayoutRecyclerView(){
+    private void setDrawLayoutRecyclerView() {
 
         linearLayout_left.setBackgroundColor(Color.parseColor(Color2));
         mD_RecyclerView = (RecyclerView) findViewById(R.id.recyclerView_set);
@@ -1521,7 +1436,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
 
         mD_RecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        mDAdapter =  new DRecyclerViewAdapter(this,data);
+        mDAdapter = new DRecyclerViewAdapter(this, data);
         mD_RecyclerView.setAdapter(mDAdapter);
         mDAdapter.setOnItemListener(new DRecyclerViewAdapter.OnItemListener() {
             @Override
@@ -1530,26 +1445,24 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
                 //我的空间
                 if (position == 0) {
                     Intent intent = new Intent(MainActivity.this, MyActivity.class);
-                   // intent.putExtra("headimage_uri", "");
+                    // intent.putExtra("headimage_uri", "");
                     intent.putExtra("userName", name);
                     //intent.putExtra("userSex", "");
                     intent.putExtra("tel", tel);
                     startActivity(intent);
                     //finish();
-                    Handler handler= new Handler();
+                    Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             mDrawerLayout.closeDrawer(Gravity.LEFT);
                         }
                     }, 1000);
-                }
-                else if(position == 1){
+                } else if (position == 1) {
                     Intent intent = new Intent(MainActivity.this, SetActivity.class);
                     startActivity(intent);
 
-                }
-                else if(position == 2){
+                } else if (position == 2) {
                     Intent intent = new Intent(MainActivity.this, AboutUsActivity.class);
                     startActivity(intent);
                 }
@@ -1559,31 +1472,31 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
 
     //点击弹框
-    private  void setPopupwindow(){
+    private void setPopupwindow() {
 
         friendwindow = this.getLayoutInflater().inflate(R.layout.window_friend, null);
-        friend_window = new PopupWindow(friendwindow,displayWidth,350);
+        friend_window = new PopupWindow(friendwindow, displayWidth, 350);
         //获得焦点
         friend_window.setFocusable(true);
         friend_window.setTouchable(true);
         friend_window.setOutsideTouchable(true);
 
-       friend_window.setAnimationStyle(R.style.popwindow_anim_style);
+        friend_window.setAnimationStyle(R.style.popwindow_anim_style);
 
 
     }
 
-    private  void showPopupwindow(int postion){
+    private void showPopupwindow(int postion) {
 
         int item_height = mRecyclerView_friend.getLayoutManager().getChildAt(0).getHeight();
-        int dy = friendtotalMove%item_height;
-        int Toppostion = (friendtotalMove-dy)/item_height;
-        int y = linearLayout_title.getBottom()+item_height-dy+(postion-Toppostion)*item_height;
+        int dy = friendtotalMove % item_height;
+        int Toppostion = (friendtotalMove - dy) / item_height;
+        int y = linearLayout_title.getBottom() + item_height - dy + (postion - Toppostion) * item_height;
 
 
-        Log.e("yo","item_height="+item_height+"dy="+dy+"Toppostion="+Toppostion+"linearLayout_title.getBottom()="+linearLayout_title.getBottom());
+        Log.e("yo", "item_height=" + item_height + "dy=" + dy + "Toppostion=" + Toppostion + "linearLayout_title.getBottom()=" + linearLayout_title.getBottom());
         mRecyclerView_friend.getTop();
-        friend_window.showAtLocation(friendwindow, Gravity.TOP | Gravity.START, 0,y);
+        friend_window.showAtLocation(friendwindow, Gravity.TOP | Gravity.START, 0, y);
 
     }
 
@@ -1679,18 +1592,18 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
         Bundle extras = intent.getExtras();
         if (extras != null) {
             Bitmap photo = extras.getParcelable("data");
-            Bitmap photo_circle =CircleImageView.getCroppedBitmap(photo, 150);
+            Bitmap photo_circle = CircleImageView.getCroppedBitmap(photo, 150);
 
             //imageView.setImageBitmap(photo);
             imageView_DrawLayouthead.setImageBitmap(photo_circle);
 
 
             //新建文件夹 先选好路径 再调用mkdir函数 现在是根目录下面的Ask文件夹
-            File nf = new File(Environment.getExternalStorageDirectory()+"/Ask");
+            File nf = new File(Environment.getExternalStorageDirectory() + "/Ask");
             nf.mkdir();
 
             //在根目录下面的ASk文件夹下 创建okkk.jpg文件
-            File f = new File(Environment.getExternalStorageDirectory()+"/Ask", "ok.png");
+            File f = new File(Environment.getExternalStorageDirectory() + "/Ask", "ok.png");
             Uri uri = Uri.fromFile(f);
             //上传给服务器
             uploadhead(photo_circle);
@@ -1733,7 +1646,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
             // 读取uri所在的图片
             Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
             return bitmap;
-        }catch (Exception e){
+        } catch (Exception e) {
             Log.e("[Android]", e.getMessage());
             Log.e("[Android]", "目录为：" + uri);
             e.printStackTrace();
@@ -1744,7 +1657,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
     // --------------------------------- setSharedPreferences -------------------------------------
     //  头像信息的传递
 
-    public void setSharedPreferences(String head){
+    public void setSharedPreferences(String head) {
         //一、根据Context获取SharedPreferences对象
         /**
          * context.getSharedPreferences("bill",MODE);
@@ -1757,19 +1670,19 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
          *SharedPreferences sharedPreferences=context.getSharedPreferences("bill", MODE_WORLD_WRITEABLE);
          */
         //方法2： 添加数据 利用 SharedPreferences 在不同的Activity传递数据
-        SharedPreferences sharedPreferences=getSharedPreferences("Data", MODE_PRIVATE);
-        SharedPreferences.Editor editor=sharedPreferences.edit();  //获取Editor对象。
-        Set<String> values=new HashSet<String>(); //通过Editor对象存储key-value键值对数据。
+        SharedPreferences sharedPreferences = getSharedPreferences("Data", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();  //获取Editor对象。
+        Set<String> values = new HashSet<String>(); //通过Editor对象存储key-value键值对数据。
         editor.putString("string", head);//存储string类型
         editor.putStringSet("set", values);//存储set多维数组
         editor.commit();    // 提交数据。
     }
 
     //从服务器得到图片
-    public void gethead(final ImageView imageView,String tel){
+    public void gethead(final ImageView imageView, String tel) {
 
         ImageRequest imageRequest = new ImageRequest(
-                Host.ip+"YoServer/head"+tel+".jpg",
+                Host.ip + "YoServer/head" + tel + ".jpg",
                 new Response.Listener<Bitmap>() {
                     @Override
                     public void onResponse(Bitmap response) {
@@ -1786,10 +1699,10 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
     }
 
     //从服务器得到图片
-    public void getyowallphoto(final ImageView imageView,String name){
+    public void getyowallphoto(final ImageView imageView, String name) {
 
         ImageRequest imageRequest = new ImageRequest(
-                Host.ip+"YoServer/"+"name"+name+".jpg",
+                Host.ip + "YoServer/" + "name" + name + ".jpg",
                 new Response.Listener<Bitmap>() {
                     @Override
                     public void onResponse(Bitmap response) {
@@ -1807,13 +1720,12 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
     }
 
     //上传图片到服务器
-    public void  uploadhead(Bitmap bitmap){
+    public void uploadhead(Bitmap bitmap) {
 
 
-
-        ByteArrayOutputStream bStream=new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG,100,bStream);
-        byte[] bytes=bStream.toByteArray();
+        ByteArrayOutputStream bStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, bStream);
+        byte[] bytes = bStream.toByteArray();
         final String string = Base64.encodeToString(bytes, Base64.DEFAULT);
         Log.e("yo", string);
 
@@ -1829,13 +1741,12 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
             public void onErrorResponse(VolleyError error) {
                 Log.e("TAG", error.getMessage(), error);
             }
-        })
-        {
+        }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> map = new HashMap<String, String>();
-                map.put("tel",tel);
-                map.put("head",string);
+                map.put("tel", tel);
+                map.put("head", string);
                 return map;
             }
         };
@@ -1844,8 +1755,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
     }
 
-    public void getusername(final String tel){
-
+    public void getusername(final String tel) {
 
 
         StringRequest stringRequest1 = new StringRequest(Request.Method.POST, Host.getusername,
@@ -1854,9 +1764,8 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
                     public void onResponse(String response) {
 
 
-                           name =  response;
-                           textView_DrawLayoutname.setText(name);
-
+                        name = response;
+                        textView_DrawLayoutname.setText(name);
 
 
                     }
@@ -1865,12 +1774,11 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
             public void onErrorResponse(VolleyError error) {
                 Log.e("TAG", error.getMessage(), error);
             }
-        })
-        {
+        }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> map = new HashMap<String, String>();
-                map.put("tel",tel);
+                map.put("tel", tel);
 
                 return map;
             }
@@ -1879,8 +1787,9 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
         queue.add(stringRequest1);
 
     }
+
     //点赞及记数功能
-    public void changeyowall(final String change,final String yowallid){
+    public void changeyowall(final String change, final String yowallid) {
 
         StringRequest stringRequest1 = new StringRequest(Request.Method.POST, Host.hopingchange,
                 new Response.Listener<String>() {
@@ -1893,14 +1802,13 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
             public void onErrorResponse(VolleyError error) {
                 Log.e("TAG", error.getMessage(), error);
             }
-        })
-        {
+        }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> map = new HashMap<String, String>();
-                map.put("tel",tel);
-                map.put("change",change);
-                map.put("yowallid",yowallid);
+                map.put("tel", tel);
+                map.put("change", change);
+                map.put("yowallid", yowallid);
 
                 return map;
             }
@@ -1908,9 +1816,9 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
         queue.add(stringRequest1);
     }
-    //点赞数增加减少
-    public void changeyowallnum(final String id,final String num_yo,final String num_love,final String num_want,final String change_num){
 
+    //点赞数增加减少
+    public void changeyowallnum(final String id, final String num_yo, final String num_love, final String num_want, final String change_num) {
 
 
         StringRequest stringRequest1 = new StringRequest(Request.Method.POST, Host.updatehoping,
@@ -1924,8 +1832,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
             public void onErrorResponse(VolleyError error) {
                 Log.e("TAG", error.getMessage(), error);
             }
-        })
-        {
+        }) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> map = new HashMap<String, String>();
@@ -1959,11 +1866,11 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
                     map.put("num",num_love);
                     map.put("num",(Integer.valueOf(num_want)-1)+"");
                 }*/
-                map.put("num_yo",num_yo);
-                map.put("num_love",num_love);
-                map.put("num_want",num_want);
-                map.put("id",id);
-                map.put("change_num",change_num);
+                map.put("num_yo", num_yo);
+                map.put("num_love", num_love);
+                map.put("num_want", num_want);
+                map.put("id", id);
+                map.put("change_num", change_num);
                 Log.e("yo", id + "" + num_love + num_want + num_yo + change_num);
                 return map;
             }
@@ -1976,14 +1883,14 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
     // --------------------------------- setHX -------------------------------------
     //  环信发送yo
-    private void SendYo(String username){
+    private void SendYo(String username) {
 
 
         addFriend(username);
         EMMessage message = EMMessage.createTxtSendMessage("yo", username);
         message.setAttribute("location", application.Location_short);
-        message.setAttribute("Latitude", application.Location_Latitude+"");
-        message.setAttribute("Longitude", application.Location_Longitude+"");
+        message.setAttribute("Latitude", application.Location_Latitude + "");
+        message.setAttribute("Longitude", application.Location_Longitude + "");
         EMClient.getInstance().chatManager().sendMessage(message);
         message.setMessageStatusCallback(new EMCallBack() {
             @Override
@@ -2013,14 +1920,13 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
     }
 
-    private void addFriend(String username){
-        try{
+    private void addFriend(String username) {
+        try {
 
             //参数为要添加的好友的username和添加理由
             EMClient.getInstance().contactManager().addContact(username, "");
-            Log.e("yo","添加好友"+username+"成功");
-        }
-        catch (final HyphenateException e){
+            Log.e("yo", "添加好友" + username + "成功");
+        } catch (final HyphenateException e) {
             e.printStackTrace();
             Log.e("yo", "添加好友失败");
         }
@@ -2062,23 +1968,22 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
     }
 
     //增加item方法，如果会话记录里没有则新建，有了则刷新 初期应该把所有的信息都显示出来，后期再考虑这种处理
-    public  void  addtoSendrecycler(List_send list_send){
+    public void addtoSendrecycler(List_send list_send) {
 
-        Log.e("yo",list_send.getid());
+        Log.e("yo", list_send.getid());
 
         conversationList.addAll(loadConversationWithRecentChat());
-        if(loadConversationWithRecentChat().size()>0){
+        if (loadConversationWithRecentChat().size() > 0) {
             int k;
-            for(k =0;k<loadConversationWithRecentChat().size();k++)
-            {
+            for (k = 0; k < loadConversationWithRecentChat().size(); k++) {
 
-                if(conversationList.get(k).getLatestMessageFromOthers()!=null){
+                if (conversationList.get(k).getLatestMessageFromOthers() != null) {
 
 
-                    if(list_send.getid().equals(conversationList.get(k).getLatestMessageFromOthers().getFrom())){
+                    if (list_send.getid().equals(conversationList.get(k).getLatestMessageFromOthers().getFrom())) {
 
                         mRecyclerView.scrollToPosition(1);
-                        datas.add(1,list_send);
+                        datas.add(1, list_send);
                         mAdapter.notifyItemInserted(1);
                         mAdapter.notifyItemRangeChanged(0, datas.size() - 0);
                         totalScrollDistance = 0;
@@ -2087,21 +1992,19 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
                         //delfromSendrecycler(k+1);
 
                     }
-                }
-                else if(list_send.getid().equals(conversationList.get(k).conversationId())){
+                } else if (list_send.getid().equals(conversationList.get(k).conversationId())) {
 
 
                     //此处应该先将getid的前状态删除掉再进行增加操作通过判断idtel等信息判断
                     mRecyclerView.scrollToPosition(1);
-                    datas.add(1,list_send);
+                    datas.add(1, list_send);
                     mAdapter.notifyItemInserted(1);
                     mAdapter.notifyItemRangeChanged(0, datas.size() - 0);
                     totalScrollDistance = 0;
 
                     //delfromSendrecycler(k+1);
 
-                }
-                else{
+                } else {
 
                     mRecyclerView.scrollToPosition(1);
                     datas.add(1, list_send);
@@ -2114,9 +2017,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
             }
 
 
-
-        }
-        else{
+        } else {
 
             mRecyclerView.scrollToPosition(1);
             datas.add(1, list_send);
@@ -2128,86 +2029,82 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
     }
 
-    public void addtoSendrecycler_new(List_send list_send){
+    public void addtoSendrecycler_new(List_send list_send) {
 
-        Log.e("yo",list_send.getid());
+        Log.e("yo", list_send.getid());
         mRecyclerView.scrollToPosition(1);
-        datas.add(1,list_send);
+        datas.add(1, list_send);
         mAdapter.notifyItemInserted(1);
         mAdapter.notifyItemRangeChanged(0, datas.size() - 0);
 
 
-
     }
-    public  void  delfromSendrecycler(){
+
+    public void delfromSendrecycler() {
         int k = Send_postion;
-        if(k>0){
-            datas.remove(k);
-            mAdapter.notifyItemRemoved(k);
-            mAdapter.notifyItemRangeChanged(k,datas.size() - k);
-            //canScrollVertically(1)的值表示是否能向下滚动， false表示已经滚动到底部
-            if(mRecyclerView.canScrollVertically(1)){
-
-            }
-            else{
-                if(mRecyclerView.canScrollVertically(-1))
-                {
-                    if(totalScrollDistance>mRecyclerView.getLayoutManager().getChildAt(0).getHeight())
-                        totalScrollDistance = totalScrollDistance -mRecyclerView.getLayoutManager().getChildAt(0).getHeight();
-                    else{
-                        totalScrollDistance = 0;
-                    }
-                }
-
-            }
-        }
-        else{
-            datas.remove(0);
-            mAdapter.notifyItemRemoved(0);
-            mAdapter.notifyItemRangeChanged(0, datas.size());
-        }
-
-    }
-    private  void  delfromSendrecycler(int del_postion){
-
-
-        //也要处理环信对话，要删除以前的对话
-        int k = del_postion;
-        if(k>0){
+        if (k > 0) {
             datas.remove(k);
             mAdapter.notifyItemRemoved(k);
             mAdapter.notifyItemRangeChanged(k, datas.size() - k);
             //canScrollVertically(1)的值表示是否能向下滚动， false表示已经滚动到底部
-            if(mRecyclerView.canScrollVertically(1)){
+            if (mRecyclerView.canScrollVertically(1)) {
 
-            }
-            else{
-                if(mRecyclerView.canScrollVertically(-1))
-                {
-                    if(totalScrollDistance>mRecyclerView.getLayoutManager().getChildAt(0).getHeight())
-                        totalScrollDistance = totalScrollDistance -mRecyclerView.getLayoutManager().getChildAt(0).getHeight();
-                    else{
+            } else {
+                if (mRecyclerView.canScrollVertically(-1)) {
+                    if (totalScrollDistance > mRecyclerView.getLayoutManager().getChildAt(0).getHeight())
+                        totalScrollDistance = totalScrollDistance - mRecyclerView.getLayoutManager().getChildAt(0).getHeight();
+                    else {
                         totalScrollDistance = 0;
                     }
                 }
 
             }
-        }
-        else if(k==0){
+        } else {
             datas.remove(0);
             mAdapter.notifyItemRemoved(0);
             mAdapter.notifyItemRangeChanged(0, datas.size());
         }
 
     }
+
+    private void delfromSendrecycler(int del_postion) {
+
+
+        //也要处理环信对话，要删除以前的对话
+        int k = del_postion;
+        if (k > 0) {
+            datas.remove(k);
+            mAdapter.notifyItemRemoved(k);
+            mAdapter.notifyItemRangeChanged(k, datas.size() - k);
+            //canScrollVertically(1)的值表示是否能向下滚动， false表示已经滚动到底部
+            if (mRecyclerView.canScrollVertically(1)) {
+
+            } else {
+                if (mRecyclerView.canScrollVertically(-1)) {
+                    if (totalScrollDistance > mRecyclerView.getLayoutManager().getChildAt(0).getHeight())
+                        totalScrollDistance = totalScrollDistance - mRecyclerView.getLayoutManager().getChildAt(0).getHeight();
+                    else {
+                        totalScrollDistance = 0;
+                    }
+                }
+
+            }
+        } else if (k == 0) {
+            datas.remove(0);
+            mAdapter.notifyItemRemoved(0);
+            mAdapter.notifyItemRangeChanged(0, datas.size());
+        }
+
+    }
+
     private Collection<? extends EMConversation> loadConversationWithRecentChat() {
 
         Map<String, EMConversation> conversations = EMClient.getInstance().chatManager().getAllConversations();
 
         List<Pair<Long, EMConversation>> sortList = new ArrayList<Pair<Long, EMConversation>>();
-        synchronized(conversations){
-            for(EMConversation conversation : conversations.values()){
-                if(conversation.getAllMessages().size() != 0){
+        synchronized (conversations) {
+            for (EMConversation conversation : conversations.values()) {
+                if (conversation.getAllMessages().size() != 0) {
                     sortList.add(new Pair<Long, EMConversation>
                                     (conversation.getLastMessage().getMsgTime(), conversation)
                     );
@@ -2215,35 +2112,37 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
             }
         }
 
-        try{
+        try {
             sortConversationByLastChatTime(sortList);
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
         List<EMConversation> list = new ArrayList<EMConversation>();
-        for(Pair<Long, EMConversation> sortItem : sortList){
+        for (Pair<Long, EMConversation> sortItem : sortList) {
             list.add(sortItem.second);
         }
 
         return list;
     }
+
     /**
      * 根据最后一条消息的时间排序
+     *
      * @param sortList
      */
     private void sortConversationByLastChatTime(
             List<Pair<Long, EMConversation>> sortList) {
-        Collections.sort(sortList, new Comparator<Pair<Long, EMConversation>>(){
+        Collections.sort(sortList, new Comparator<Pair<Long, EMConversation>>() {
 
             @Override
             public int compare(Pair<Long, EMConversation> con1,
                                Pair<Long, EMConversation> con2) {
-                if(con1.first == con2.first){
+                if (con1.first == con2.first) {
                     return 0;
-                }else if(con2.first > con1.first){
+                } else if (con2.first > con1.first) {
                     return 1;
-                }else{
+                } else {
                     return -1;
                 }
             }
@@ -2272,37 +2171,30 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
 
     //动态权限
-    public void getPermission(){
+    public void getPermission() {
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED)
-        {         ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-        }
-        else
-        {
-           //do something we want
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+        } else {
+            //do something we want
         }
     }
 
+
+    //动态权限申请
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
-    {
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 
-        if (requestCode ==MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE)
-        {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED)
-            {
+        if (requestCode == MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 //
-            }
-            else if(grantResults[1] == PackageManager.PERMISSION_GRANTED)
-            {
+            } else if (grantResults[1] == PackageManager.PERMISSION_GRANTED) {
 
-            }
-            else
-            {
+            } else {
                 // Permission Denied
                 Toast.makeText(MainActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
             }
@@ -2312,7 +2204,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
     }
 
 
-
+    //借口回调，退出时回调，将初始值置零
 
 }
 
