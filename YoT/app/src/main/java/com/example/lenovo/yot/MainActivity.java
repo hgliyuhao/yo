@@ -145,8 +145,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
     //刷新栏高度
     private int HeaderHeight;
     private boolean isGetHeaderHeight;
-    View view_refresh;
-    int recycler_state;//0为隐藏刷新，1为正常
+
 
 
     //设置朋友下拉菜单
@@ -194,7 +193,8 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
 
     SwipeRefreshLayout swipeRefreshLayout;
-    boolean isRefresing;
+    boolean isRefresing;//是否进入刷新状态
+    boolean isBack;//是否在后退状态
 
     //图像处理常数
     private static final String IMAGE_FILE_NAME = "temp_head_image.jpg";
@@ -299,8 +299,10 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
         setDrawLayout();
 
         setFloatingButton();
-
         //得到回调
+
+
+
 
     }
 
@@ -331,7 +333,13 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
                     message.getStringAttribute("Longitude", application.Location_Longitude + "");
                     //计算位置得到结果给distance
                     //sendNotification();
-                    addtoSendrecycler(list1);
+                    //addtoSendrecycler(list1);
+
+
+                    mRecyclerView.scrollToPosition(1);
+                    datas.add(1, list1);
+                    mAdapter.notifyItemInserted(1);
+                    mAdapter.notifyItemRangeChanged(1, datas.size() - 1);
                     break;
             }
         }
@@ -584,12 +592,12 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
         // mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(4,        StaggeredGridLayoutManager.VERTICAL));
         mAdapter = new RecyclerViewAdapter(this, datas);
         mRecyclerView.setAdapter(mAdapter);
+       // mRecyclerView.setOnTouchListener(this);
 
         //隐藏刷新栏
 
-        //mRecyclerView.scrollToPosition(1);
+
         ((LinearLayoutManager) mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(1, 0);
-        //mRecyclerView.scrollBy(0, -180);
 
 
         //滑动监测
@@ -600,10 +608,29 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
-                //得到当前view的item总数
-                //visibleItemCount = mRecyclerView.getChildCount();
-                //Log.e("Yo", visibleItemCount+"个");
 
+                //0为停止滑动，1为开始滑动2当前的recycleView在滚动到某个位置的动画过程,但没有被触摸滚动.调用 scrollToPosition(int) 应该会触发这个状态
+                Log.e("yo", "-----------onScrollStateChanged-----------");
+                Log.e("yo", "newState: " + newState);
+                if(newState==0){
+
+                    /*if (totalScrollDistance < 0 && totalScrollDistance > -180 ) {
+                        //如过滑动范围小则不触发刷新，复原recycler
+                        mRecyclerView.scrollBy(0,-totalScrollDistance);
+
+                    }
+                    else  {
+
+                    }*/
+                }
+                else if(newState==1) {
+
+
+
+                }
+                else {
+
+                }
             }
 
             @Override
@@ -612,33 +639,10 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
                 totalScrollDistance = totalScrollDistance + dy;
 
-                // Log.e("yo",recycler_firstVisableItem+"");
+                 Log.e("yo",totalScrollDistance+"");
 
                 // -1 表示不能向上
 
-
-                if (totalScrollDistance < 0 && totalScrollDistance > -170) {
-
-
-                    Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            if (isRefresing) {
-
-                            } else {
-                                mRecyclerView.scrollBy(0, -totalScrollDistance);
-                                //隐藏刷新栏
-                                mAdapter.setTextView_refresh();
-                            }
-
-
-                        }
-                    }, 500);
-
-
-                }
 
 
                 int recycler_firstVisableItem = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstVisibleItemPosition();
@@ -661,20 +665,9 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
                     }
 
                 }
+                //得到当前页面item数
+                //getSize();
 
-                getSize();
-
-                if (recycler_state == 0) {
-
-                    view_refresh = (mRecyclerView.getLayoutManager()).getChildAt(0);
-                    ViewGroup.LayoutParams params = view_refresh.getLayoutParams();
-                    params.height = 1;
-                    view_refresh.setLayoutParams(params);
-
-                } else {
-                    //((LinearLayoutManager)mRecyclerView.getLayoutManager()).getChildAt(0).setVisibility(View.VISIBLE);
-                    //((LinearLayoutManager)mRecyclerView.getLayoutManager()).scrollToPositionWithOffset(1,0);
-                }
             }
 
 
@@ -701,13 +694,6 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
                 } else if (position == 2) {
 
-                    sendNotification();
-                    List_send list1 = new List_send(1, R.mipmap.tx_xiao2_150, "S.s", "3", 1, 2);
-                    mRecyclerView.scrollToPosition(1);
-                    datas.add(1, list1);
-                    mAdapter.notifyItemInserted(1);
-                    mAdapter.notifyItemRangeChanged(0, datas.size() - 0);
-                    totalScrollDistance = 0;
 
 
                 }
@@ -728,85 +714,44 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
     //下面三个方法都是用来recycler下拉刷新
     private void setRefresh() {
 
+        swipeRefreshLayout.setDistanceToTriggerSync(1);
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
 
 
-                getSize();
-                if (!isGetHeaderHeight) {
-
-                    isGetHeaderHeight = true;
-                    HeaderHeight = totalScrollDistance;
-
-                }
-
                 if (!isRefresing) {
 
                     isRefresing = true;
+                    mAdapter.showHeader();
                     mAdapter.refresh(displayWidth);
-
-
-                    if (recycler_state == 0) {
-                        ViewGroup.LayoutParams params = view_refresh.getLayoutParams();
-                        params.height = 180;
-                        view_refresh.setLayoutParams(params);
-                    }
 
                 }
                 swipeRefreshLayout.setRefreshing(false);
-
 
             }
         });
     }
 
-    public void set0() {
+    public void sethideHeader(){
 
-
-        if (!isGetHeaderHeight) {
-
-            mRecyclerView.scrollBy(0, 90);
-            isRefresing = false;
-            /*ViewGroup.LayoutParams params=view_refresh.getLayoutParams();
-            params.height=1;
-            view_refresh.setLayoutParams(params);
-            isRefresing = false;*/
-            if (recycler_state == 0) {
-                ViewGroup.LayoutParams params = view_refresh.getLayoutParams();
-                params.height = 1;
-                view_refresh.setLayoutParams(params);
-            }
-
-
-        } else {
-            mRecyclerView.scrollBy(0, 90);
-            isRefresing = false;
-            if (recycler_state == 0) {
-                ViewGroup.LayoutParams params = view_refresh.getLayoutParams();
-                params.height = 1;
-                view_refresh.setLayoutParams(params);
-            }
-            /*ViewGroup.LayoutParams params=view_refresh.getLayoutParams();
-            params.height=1;
-            view_refresh.setLayoutParams(params);
-            isRefresing = false;*/
-
-        }
-
+        isRefresing = false;
+        mAdapter.hideHeader();
+        //mRecyclerView.scrollBy(0,0);
+       // totalScrollDistance = -90;
 
     }
 
+    //得到当前页面放置item数目
     private void getSize() {
 
         int itemHeight, size;
+
+
         itemHeight = mRecyclerView.getLayoutManager().getChildAt(1).getHeight();
         size = ((displayHeight - linearLayout_title.getBottom()) - (displayHeight - linearLayout_title.getBottom()) % itemHeight) / itemHeight;
-        if (datas.size() < size + 1) {
-            recycler_state = 0;
-        } else {
-            recycler_state = 1;
-        }
+
+
 
     }
 
@@ -1015,15 +960,20 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
         application = (ECApplication) getApplication();
         datas = new ArrayList<>();
-        final List_send list1 = new List_send(1, R.mipmap.tx_xiao2_150, "S.s", "3", 1, 2);
-        List_send list2 = new List_send(2, R.mipmap.tx_thirty, application.Location_short, "55", 1, 4);
-        datas.add(list1);
-        datas.add(list2);
-        datas.add(list1);
+        friend_datas = new ArrayList<>();
 
+        //默认添加一组数据，为处理下拉刷新添加的，内容没有意义
+        final List_send list1 = new List_send(1, R.mipmap.tx_xiao2_150, "S.s", "3", 1, 2);
+        //datas.add(list1);
+        //datas.add(list1); datas.add(list1); datas.add(list1); datas.add(list1); datas.add(list1);
+       // datas.add(list1); datas.add(list1); datas.add(list1); datas.add(list1); datas.add(list1);
+        //datas.add(list1); datas.add(list1); datas.add(list1); datas.add(list1); datas.add(list1);
+
+
+        /*List_send list2 = new List_send(2, R.mipmap.tx_thirty, application.Location_short, "55", 1, 4);
         for (int i = 0; i < 3; i++) {
             datas.add(list1);
-        }
+        }*/
 
 
         conversationList.addAll(loadConversationWithRecentChat());
@@ -1048,12 +998,8 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
         }
 
 
-       /* if(datas.size()<10){
-            recycler_state = 0;
-        }*/
 
-        friend_datas = new ArrayList<>();
-        final List_friend list_friend1 = new List_friend(1, R.mipmap.tx_xiao2_150, "S.s", "3", 1, 2);
+        /*final List_friend list_friend1 = new List_friend(1, R.mipmap.tx_xiao2_150, "S.s", "3", 1, 2);
         List_friend list_friend2 = new List_friend(2, R.mipmap.tx_thirty, "thirty", "55", 1, 4);
         friend_datas.add(list_friend1);
         friend_datas.add(list_friend1);
@@ -1061,7 +1007,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
         for (int i = 0; i < 20; i++) {
             friend_datas.add(list_friend2);
-        }
+        }*/
 
 
         data = new ArrayList<>();
@@ -1075,11 +1021,6 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
         yowall_datas = new ArrayList<>();
 
-       /* final List_yowall yowall_listSet1 =new List_yowall(1,"no","123","lyh","9.15",2.9,"北京",false,false,false,12321,12312,12312);
-        yowall_datas.add(yowall_listSet1);
-        for(int i =0;i<20;i++){
-            yowall_datas.add(yowall_listSet1);
-        }*/
 
 
         isGetHeaderHeight = false;
@@ -1985,8 +1926,8 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
                         mRecyclerView.scrollToPosition(1);
                         datas.add(1, list_send);
                         mAdapter.notifyItemInserted(1);
-                        mAdapter.notifyItemRangeChanged(0, datas.size() - 0);
-                        totalScrollDistance = 0;
+                        mAdapter.notifyItemRangeChanged(1, datas.size() - 1);
+                       // totalScrollDistance = 0;
 
                         //因为先增加，再删除的时候就要+！
                         //delfromSendrecycler(k+1);
@@ -1999,8 +1940,8 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
                     mRecyclerView.scrollToPosition(1);
                     datas.add(1, list_send);
                     mAdapter.notifyItemInserted(1);
-                    mAdapter.notifyItemRangeChanged(0, datas.size() - 0);
-                    totalScrollDistance = 0;
+                    mAdapter.notifyItemRangeChanged(1, datas.size() - 1);
+                    //totalScrollDistance = 0;
 
                     //delfromSendrecycler(k+1);
 
@@ -2009,8 +1950,8 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
                     mRecyclerView.scrollToPosition(1);
                     datas.add(1, list_send);
                     mAdapter.notifyItemInserted(1);
-                    mAdapter.notifyItemRangeChanged(0, datas.size() - 0);
-                    totalScrollDistance = 0;
+                    mAdapter.notifyItemRangeChanged(1, datas.size() - 1);
+                   // totalScrollDistance = 0;
 
                 }
 
@@ -2035,7 +1976,7 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
         mRecyclerView.scrollToPosition(1);
         datas.add(1, list_send);
         mAdapter.notifyItemInserted(1);
-        mAdapter.notifyItemRangeChanged(0, datas.size() - 0);
+        mAdapter.notifyItemRangeChanged(1, datas.size() - 1);
 
 
     }

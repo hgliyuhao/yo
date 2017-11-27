@@ -23,12 +23,17 @@ import com.hyphenate.EMMessageListener;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMMessage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by lenovo on 2017/10/27.
  */
 public class PushService extends Service implements EMMessageListener {
+
+
+    String messageFrom;
+    List<String> from=new ArrayList<>();
 
     @Nullable
     @Override
@@ -39,7 +44,7 @@ public class PushService extends Service implements EMMessageListener {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.e("yo", "12312312123");
+        Log.e("yo", "PushService is running");
         EMClient.getInstance().chatManager().addMessageListener(this);
 
     }
@@ -53,7 +58,8 @@ public class PushService extends Service implements EMMessageListener {
                     EMMessage message = (EMMessage) msg.obj;
                     //获得头像数据
                     //数据处理
-                    List_send list1 = new List_send(1,R.mipmap.tx_xiao2_150,"admin","3",1,2);
+                    messageFrom = message.getFrom().toString().trim();
+
                     //List_send list_new = new  List_send(0,R.mipmap.tx_xiao2_150,message.getFrom().toString().trim(),"","1",1,10,1);
                     //textView_id.setText("\n" + message.getFrom().toString().trim()+message.getMsgTime());
                     //
@@ -64,7 +70,7 @@ public class PushService extends Service implements EMMessageListener {
                     Intent mainIntent = new Intent(PushService.this, MainActivity.class);
                     PendingIntent mainPendingIntent = PendingIntent.getActivity(PushService.this, 0, mainIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                     Notification notification = builder
-                            .setContentTitle("hgthirty")
+                            .setContentTitle(messageFrom)
                             .setContentText("yoooooooo!")
                                     //.setWhen(System.currentTimeMillis())
                             .setSmallIcon(R.mipmap.yo_head)
@@ -72,8 +78,19 @@ public class PushService extends Service implements EMMessageListener {
                             .setAutoCancel(true)
                             .setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.yo_head)).build();
 
-                    //加入信息来的人的判断
-                    manager.notify(5, notification);
+                    //加入信息来的人的判断，如果列表包含，则刷新状态，不包含则加入列表发送通知
+                    if(from.contains(messageFrom)){
+
+                        manager.notify(from.indexOf(messageFrom), notification);
+
+                    }else{
+
+                        //先发送然后再加入list
+                        manager.notify(from.size(), notification);
+                        from.add(messageFrom);
+
+                    }
+
                     break;
             }
         }

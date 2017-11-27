@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.view.animation.AnticipateInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -30,6 +31,8 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
     private final int First_VIEW = 1;
     private final int Normal_VIEW = 2;
 
+    RecyclerView.LayoutParams param;
+    View item;
 
     TextView textView_refresh;
     TextView time;
@@ -153,7 +156,20 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             time.setVisibility(View.INVISIBLE);
             imageView_plane.setVisibility(View.INVISIBLE);
 
+            param = (RecyclerView.LayoutParams)itemView.getLayoutParams();
+            item = itemView;
+            /*if(data.size()==1){
+                itemView.setVisibility(View.GONE);
+                param.height = 0;
+                param.width = 0;
+            }
+            else {
+                param.height = LinearLayout.LayoutParams.WRAP_CONTENT;
+                param.width = LinearLayout.LayoutParams.MATCH_PARENT;
+                itemView.setVisibility(View.VISIBLE);
+            }*/
 
+            hideHeader();
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -213,15 +229,14 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             public void onAnimationStart(Animator animation) {
 
 
-
             }
 
             @Override
             public void onAnimationEnd(Animator animation) {
 
-                    textView_refresh.setText("有7个人yo了你！");
-                    anim_p2(textView_refresh);
-                    anim_p2(time);
+                textView_refresh.setText("有7个人yo了你！");
+                anim_p2(textView_refresh);
+                anim_p2(time);
 
             }
 
@@ -252,7 +267,7 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
                 // 3.为目标对象的属性设置计算好的属性值
                 float animatorValue = (float) animation.getAnimatedValue();
 
-              textView.setAlpha(animatorValue*2);
+              textView.setAlpha(animatorValue * 2);
 
 
             }
@@ -271,8 +286,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
             public void onAnimationEnd(Animator animation) {
 
                 textView.setVisibility(View.INVISIBLE);
-                ((MainActivity) context).set0();
-                textView_refresh.setText("");
+                //调用sethideHeader，重置刷新状态，隐藏Header
+                ((MainActivity) context).sethideHeader();
+                textView_refresh.setText("上滑关闭 下拉刷新");
                 textView_refresh.setVisibility(View.VISIBLE);
             }
 
@@ -289,8 +305,30 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
     }
     public void setTextView_refresh(){
-        textView_refresh.setText("下拉刷新");
+        textView_refresh.setVisibility(View.VISIBLE);
+        textView_refresh.setText("上滑关闭，下拉刷新");
     }
+
+    //隐藏下拉刷新页面
+    public void hideHeader(){
+
+        item.setVisibility(View.GONE);
+        param.height =1;
+        param.width = LinearLayout.LayoutParams.MATCH_PARENT;
+
+    }
+
+    //展示下拉刷新页面
+    public void showHeader(){
+
+
+        param.height = LinearLayout.LayoutParams.WRAP_CONTENT;
+        param.width = LinearLayout.LayoutParams.MATCH_PARENT;
+        item.setVisibility(View.VISIBLE);
+
+    }
+
+
 
 
 }
