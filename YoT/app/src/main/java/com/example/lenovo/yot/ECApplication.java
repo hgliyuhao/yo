@@ -68,7 +68,7 @@ public class ECApplication extends Application{
 
         //初始化
         EMClient.getInstance().init(this, options);
-        options.setAutoLogin(false);
+      //  options.setAutoLogin(false);
         //在做打包混淆时，关闭debug模式，避免消耗不必要的资源
         //EMClient.getInstance().setDebugMode(true);
     }

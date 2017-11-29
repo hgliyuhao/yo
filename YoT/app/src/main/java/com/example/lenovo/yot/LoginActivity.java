@@ -216,11 +216,6 @@ public class LoginActivity extends AppCompatActivity implements Fragment_signup.
 
 
             setContentView(R.layout.welcome);
-            //linearLayout_2.setVisibility(View.GONE);
-            //textView_zhushi.setVisibility(View.GONE);
-            //自定义界面
-            //imageView_heart = (ImageView)findViewById(R.id.imageView);
-            //imageView_heart.setVisibility(View.GONE);
 
             imageView_plane = (ImageView)findViewById(R.id.imageView_plane);
             imageView_head = (ImageView)findViewById(R.id.imageView_welcome_head);
@@ -242,109 +237,26 @@ public class LoginActivity extends AppCompatActivity implements Fragment_signup.
             imageView_plane.setVisibility(View.INVISIBLE);
 
             anim_p1(imageView_plane);
+            // 加载所有会话到内存
+            EMClient.getInstance().chatManager().loadAllConversations();
 
-            EMClient.getInstance().login(userId, password, new EMCallBack() {
-                /**
-                 * 登陆成功的回调
-                 */
+            Handler handler= new Handler();
+            handler.postDelayed(new Runnable() {
                 @Override
-                public void onSuccess() {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-
-                            //Log.e("yo",f_getfromServer.toString());
-                            // 加载所有会话到内存
-                            EMClient.getInstance().chatManager().loadAllConversations();
-                            // 加载所有群组到内存，如果使用了群组的话
-                            // EMClient.getInstance().groupManager().loadAllGroups();
-                           // setTabSelection(6);
-                            // 登录成功跳转界面
-                            Handler handler= new Handler();
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                                    i.putExtra("tel",userId);
-                                    i.putExtra("state","ok");
-                                    i.putExtra("headimage_uri", "");
-                                    Num_send.setTel(userId);
-                                    LoginActivity.this.startActivity(i);
-                                    LoginActivity.this.finish();
-
-                                }
-                            }, 4750);
-                        }
-                    });
-                }
-
-                /**
-                 * 登陆错误的回调
-                 * @param i
-                 * @param s
-                 */
-                @Override
-                public void onError(final int i, final String s) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Log.d("lzan13", "登录失败 Error code:" + i + ", message:" + s);
-                            /**
-                             * 关于错误码可以参考官方api详细说明
-                             * http://www.easemob.com/apidoc/android/chat3.0/classcom_1_1hyphenate_1_1_e_m_error.html
-                             */
-                            switch (i) {
-                                // 网络异常 2
-                                case EMError.NETWORK_ERROR:
-                                    Toast.makeText(LoginActivity.this, "网络错误 ", Toast.LENGTH_LONG).show();
-                                    break;
-                                // 无效的用户名 101
-                                case EMError.INVALID_USER_NAME:
-                                    Toast.makeText(LoginActivity.this, "无效的用户名", Toast.LENGTH_LONG).show();
-                                    break;
-                                // 无效的密码 102
-                                case EMError.INVALID_PASSWORD:
-                                    Toast.makeText(LoginActivity.this, "无效的密码", Toast.LENGTH_LONG).show();
-                                    break;
-                                // 用户认证失败，用户名或密码错误 202
-                                case EMError.USER_AUTHENTICATION_FAILED:
-                                    Toast.makeText(LoginActivity.this, "用户认证失败，用户名或密码错误 ", Toast.LENGTH_LONG).show();
-                                    break;
-                                // 用户不存在 204
-                                case EMError.USER_NOT_FOUND:
-                                    Toast.makeText(LoginActivity.this, "用户不存在", Toast.LENGTH_LONG).show();
-                                    break;
-                                // 无法访问到服务器 300
-                                case EMError.SERVER_NOT_REACHABLE:
-                                    Toast.makeText(LoginActivity.this, "无法访问到服务器", Toast.LENGTH_LONG).show();
-                                    break;
-                                // 等待服务器响应超时 301
-                                case EMError.SERVER_TIMEOUT:
-                                    Toast.makeText(LoginActivity.this, "等待服务器响应超时", Toast.LENGTH_LONG).show();
-                                    break;
-                                // 服务器繁忙 302
-                                case EMError.SERVER_BUSY:
-                                    Toast.makeText(LoginActivity.this, "服务器繁忙", Toast.LENGTH_LONG).show();
-                                    break;
-                                // 未知 Server 异常 303 一般断网会出现这个错误
-                                case EMError.SERVER_UNKNOWN_ERROR:
-                                    Toast.makeText(LoginActivity.this, "未知的服务器异常", Toast.LENGTH_LONG).show();
-                                    break;
-                                default:
-                                    Toast.makeText(LoginActivity.this, "ml_sign_in_failed ", Toast.LENGTH_LONG).show();
-                                    break;
-                            }
-                        }
-                    });
-                }
-
-                @Override
-                public void onProgress(int i, String s) {
+                public void run() {
+                    Intent i = new Intent(LoginActivity.this, MainActivity.class);
+                    i.putExtra("tel", userId);
+                    i.putExtra("state", "ok");
+                    i.putExtra("headimage_uri", "");
+                    Num_send.setTel(userId);
+                    LoginActivity.this.startActivity(i);
+                    LoginActivity.this.finish();
+                    Log.e("Yo", "userId" + userId);
 
                 }
-            });
+            }, 4750);
         }
-        Log.e("Yo",""+sign_up_state );
+       // Log.e("Yo","userId"+userId );
 
 
 
@@ -735,8 +647,9 @@ public class LoginActivity extends AppCompatActivity implements Fragment_signup.
         intent.putExtra("userName",string_userName);
         intent.putExtra("userSex",string_userSex);
         intent.putExtra("tel",string_userId);
-        intent.putExtra("state","login");
+        intent.putExtra("state","quit");
         Num_send.setTel(string_userId);
+        Log.e("yo","tel="+string_userId );
         startActivity(intent);
         finish();
     }

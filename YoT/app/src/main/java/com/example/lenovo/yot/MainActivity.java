@@ -211,11 +211,13 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
 
     //悬浮窗
 
+    String state;//判断是否退出了上个用户
 
     //访问次数
     SharedPreferences Times;//
     SharedPreferences.Editor editor_times;
     int times;
+
 
     //头像本地数据
     SharedPreferences Head;//
@@ -282,8 +284,11 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
         Intent intent1;
         intent1 = getIntent();
 
+        state = "";
         if((intent1.getStringExtra("state")).equals("quit")){
             //如果状态是quit把数据全部置0
+            state = "state";
+
             editor_name.putString("name", "");
             editor_name.commit();
 
@@ -1295,9 +1300,36 @@ public class MainActivity extends CheckPermissionsActivity implements  View.OnTo
         Intent intent1;
         intent1 = getIntent();
 
+        if(state.equals("state")){
+            if ((intent1.getStringExtra("headimage_uri")).equals("")) {
+
+                gethead(imageView_DrawLayouthead, intent1.getStringExtra("tel"));
 
 
-        if (times == 0) {
+            } else {
+                Uri imageUri = Uri.parse(intent1.getStringExtra("headimage_uri"));
+                imageView_DrawLayouthead.setImageBitmap(getBitmapFromUri(imageUri));
+
+            }
+
+            editor_times.putInt("times", ++times);
+            editor_times.commit();
+
+            getusername(intent1.getStringExtra("tel"));
+            editor_name.putString("name", intent1.getStringExtra("userName"));
+            editor_name.commit();
+
+            editor_head.putString("head", intent1.getStringExtra("headimage_uri"));
+            editor_head.commit();
+
+            editor_tel.putString("tel", intent1.getStringExtra("tel"));
+            editor_tel.commit();
+
+            setSharedPreferences(intent1.getStringExtra("headimage_uri"));
+
+        }
+
+        else if (times == 0) {
 
             if ((intent1.getStringExtra("headimage_uri")).equals("")) {
 
